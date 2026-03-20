@@ -32,23 +32,22 @@ public class Alumno {
 		this.nombre = nombre;
 	}
 
-	public boolean nuevaEvaluacion(Evaluacion evaluacion) {
-		boolean exito = true;
+    public boolean nuevaEvaluacion(Evaluacion evaluacion) {
         Iterador it = expediente.getIterador();
-        while (it.hasNext()){
-            Evaluacion elemento = it.next();
-            if (elemento.getNombreAsignatura().equals(evaluacion.getNombreAsignatura()) &&
-                    elemento.getConvocatoria().equals(evaluacion.getConvocatoria())) {
-                if (elemento.getNota() == evaluacion.getNota()) {
-                exito = true;}
-                else {
-                    System.out.println("Calificación previamente insertada con nota: " + elemento.getNota());
-                    exito = false;}}
-            else{
-                expediente.insertar(elemento);
-        }}
-        return exito;
-	}
+        while (it.hasNext()) {
+            Evaluacion existente = it.next();
+            if (existente.mismaEvaluacion(evaluacion)) {
+                if (existente.getNota() == evaluacion.getNota()) {
+                    return true;
+                } else {
+                    System.out.println("Calificación previamente insertada con nota: " + existente.getNota());
+                    return false;
+                }
+            }
+        }
+        expediente.insertar(evaluacion);
+        return true;
+    }
 
 	public boolean estaAprobado(String nombreAsig) {
         Boolean exito = false;
@@ -64,7 +63,7 @@ public class Alumno {
 
 	public Lista asignaturasAprobadas() {
         Lista resultado = new Lista();
-        Iterador it = resultado.getIterador();
+        Iterador it = expediente.getIterador();
         while (it.hasNext()){
             Evaluacion elemento = it.next();
             if(estaAprobado(elemento.getNombreAsignatura())){
@@ -77,16 +76,20 @@ public class Alumno {
 
 	}
 
-	public double mediaAprobadas() {
+    public double mediaAprobadas() {
         double suma = 0.0;
-		Lista media = asignaturasAprobadas();
+        Lista media = asignaturasAprobadas();
+        if (media.vacia()) {
+            return 0.0;
+        }
+
         Iterador iterador = media.getIterador();
         while (iterador.hasNext()){
-            Evaluacion elemento= iterador.next();
+            Evaluacion elemento = iterador.next();
             suma += elemento.getNota();
         }
-        return suma/media.getNumElementos();
-	}
+        return suma / media.getNumElementos();
+    }
 
 	public int getNumAprobadas() {
         Lista resultado = asignaturasAprobadas();
